@@ -6,9 +6,25 @@ It extends [eslint-config-airbnb](https://github.com/airbnb/javascript/tree/mast
 
 ## Installation
 
-This package requires `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser`, `eslint`, `eslint-config-airbnb`, `eslint-config-prettier`, `eslint-plugin-prettier`, and `prettier` as peer dependencies.
+This package requires the following peer dependencies:
 
-Additionally, if you are not using this with [Create React App](https://github.com/facebook/create-react-app), it requires `babel-eslint`, `eslint-config-react-app`, `eslint-plugin-flowtype`, `eslint-plugin-import`, `eslint-plugin-jsx-a11y`, `eslint-plugin-react`, and `eslint-plugin-react-hooks` (these are already installed with `react-scripts`).
+- `@typescript-eslint/eslint-plugin`
+- `@typescript-eslint/parser`
+- `eslint`
+- `eslint-config-airbnb`
+- `eslint-config-prettier`
+- `eslint-plugin-prettier`
+- `prettier`
+
+If you are _not_ using this with [Create React App](https://github.com/facebook/create-react-app), it requires the following additional peer dependencies (these are already installed with `react-scripts`):
+
+- `babel-eslint`
+- `eslint-config-react-app`
+- `eslint-plugin-flowtype`
+- `eslint-plugin-import`
+- `eslint-plugin-jsx-a11y`
+- `eslint-plugin-react`
+- `eslint-plugin-react-hooks` .
 
 You can list the correct versions of each package to install with the command:
 
@@ -40,14 +56,109 @@ Create a `.eslintrc` file in your project's root directory with the following co
 ```json
 {
 	"extends": ["weldnorthed"],
-	"parserOptions": {
-		"project": "./tsconfig.json"
-	},
 	"rules": {}
 }
 ```
 
 Note: Because this configuration uses the [@typescript-eslint/prefer-nullish-coalescing](https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/prefer-nullish-coalescing.md) rule, it requires a value for the `"parserOptions.project"` property that points to your project's `tsconfig.json` file.
+The default value is `./tsconfig.json`. If your `tsconfig.json` file is in a different location, has a different name, or your project uses more than one, you will need to specify the `"parserOptions.project"` property.
+
+```json
+{
+	"extends": ["weldnorthed"],
+	"parserOptions": {
+		"project": ["./tsconfig.json", "./tsconfig.tests.json"]
+	},
+	"rules": {}
+}
+```
+
+### Without React
+
+For projects that don't include React/JSX, you can opt to use the base configuration.
+
+```json
+{
+	"extends": ["weldnorthed/base"],
+	"rules": {}
+}
+```
+
+To use the base configuration, the following peer dependencies are required:
+
+- `@typescript-eslint/eslint-plugin`
+- `@typescript-eslint/parser`
+- `eslint`
+- `eslint-config-airbnb-base`
+- `eslint-config-prettier`
+- `eslint-plugin-import`
+- `eslint-plugin-prettier`
+- `prettier`
+
+## Relaxing the rules
+
+To maintain consistency across code bases, this configuration is intentionally very strict.
+Most rules will produce an error if violated. If you need to relax the rules, such as when adding this config to an existing project, consider using the [`eslint-plugin-only-warn` plugin](https://github.com/bfanger/eslint-plugin-only-warn).
+
+Install it with the following command:
+
+```bash
+npm i -D eslint-plugin-only-warn
+
+# or
+
+yarn add -D eslint-plugin-only-warn
+```
+
+Then add it to your `.eslintrc` file:
+
+```json
+{
+	"extends": ["weldnorthed"],
+	"plugins": ["only-warn"],
+	"rules": {}
+}
+```
+
+Once all the warnings have been cleaned up, consider removing the plugin to better enforce consistency.
+
+## Using with Storybook
+
+Create React App uses [`eslint-webpack-plugin`](https://github.com/webpack-contrib/eslint-webpack-plugin) to display linting errors in the browser console.
+To achieve this same functionality in Storybook, you can add the plugin to Storybook's webpack config.
+
+First, install the plugin:
+
+```bash
+npm i -D eslint-webpack-plugin
+
+# or
+
+yarn add -D eslint-webpack-plugin
+```
+
+Then add it to Storybook's webpack config in the `.storybook/main.js` file:
+
+```js
+const ESLintPlugin = require('eslint-webpack-plugin');
+
+module.exports = {
+	// ...
+
+	webpackFinal: async (config) => {
+		// ...
+
+		config.plugins = [
+			...config.plugins,
+			new ESLintPlugin({
+				extensions: ['js', 'jsx', 'ts', 'tsx'],
+			}),
+		];
+
+		return config;
+	},
+};
+```
 
 ## Additional configuration
 
